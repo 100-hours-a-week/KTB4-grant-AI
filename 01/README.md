@@ -17,3 +17,8 @@ ckptpick best exp/
 - `INFO Max accuracy: {acc}%` (원 모델)
 - `Info Max accuracy ema: {acc_ema}%` (EMA 모델)
 두 값 중 큰 값을 `val_acc1`으로 사용한다.
+## 실행 예시
+### `ckptpick summary exp/`
+![summary 실행 결과](test/summary.png)
+### `ckptpick best exp/`
+![best 실행 결과](test/best.png)
