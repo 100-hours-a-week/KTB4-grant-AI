@@ -11,8 +11,18 @@ from rich.table import Table
 
 
 # 최고 정확도를 추출하는 정규식 패턴
-PAT_MAX = re.compile(r"Max accuracy: \s*([\d.]+)%") # check: \s*([\d.]+) 이게 무엇인지
-PAT_EMA_MAX = re.compile(r"Max accuracy ema: \s*([\d.]+)%")
+PAT_MAX = re.compile(r"Max accuracy:\s*([\d.]+)%") # check: \s*([\d.]+) 이게 무엇인지
+"""# check
+- \s*: 공백이 0번 이상
+    - \s: space, tab, 개행 등 whitespace 한 글자
+    - *: 바로 앞의 값이 0번 이상 반복
+- [\d.]+: 숫자 또는 점이 1번 이상
+    - [...]: 대괄호 안 문자 중 아무거나 하나에 매칭되는 "문자"
+    - \d: 0-9의 숫자 한 글자
+    - +: 바로 앞의 값이 1번 이상 반복
+- (): 캡처 그룹
+"""
+PAT_EMA_MAX = re.compile(r"Max accuracy ema:\s*([\d.]+)%")
 
 
 def parse_val_acc1(path: Path) -> float | None:
@@ -29,6 +39,9 @@ def parse_val_acc1(path: Path) -> float | None:
             m = PAT_EMA_MAX.search(line)
             if m: # 매칭되면
                 last_ema_max_acc = float(m.group(1)) # check: \s*([\d.]+)로부터 나온 것 같은데 `group(1)`이 의미하는 것
+                """# check
+                group(0)은 전체 매칭 결과, group(1)부터는 왼쪽부터 ()로 캡처한 그룹
+                """
                 continue
 
             # EMA 매칭 안되면 원 모델에 대해 시도
