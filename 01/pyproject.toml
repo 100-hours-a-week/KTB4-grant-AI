@@ -1,0 +1,25 @@
+# [project]: 패키지 메타데이터
+#   pip가 이 section을 보고 "어떤 패키지를 어떻게 설치할지" 결정
+[project]
+name = "ckptpick"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["click", "rich"]
+
+# [project.scripts]: console 명령 등록
+#   {명령어 이름} = {모듈 경로:호출 대상}의 형식
+#   설치되면 가상 환경 `bin/`에 `ckptpick` 실행 파일이 자동 생성
+[project.scripts]
+ckptpick = "ckptpick.cli:cli"
+
+# [build-system]: 빌드 백엔드 지정
+#   pip은 source를 직접 wheel로 만들지 않고 별도의 빌드 백엔드에 위임
+#   hatchling은 가볍고 표준적인 백엔드 (대안: setuptools 등)
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# [tool.hatch.build.targets.wheel]: hatchling에 source layout 위치 알림
+#   `src/` 아래에 코드를 둔 구조라 `hatchling`이 찾을 수 있도록 경로 명시
+[tool.hatch.build.targets.wheel]
+packages = ["src/ckptpick"]
