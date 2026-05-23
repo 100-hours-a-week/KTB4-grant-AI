@@ -5,7 +5,6 @@ from pydantic import BaseModel
 # App instance 생성
 app = FastAPI(title="Community API") # title: Swagger 문서 상단에 표시되는 이름
 
-
 """사용자"""
 # 회원 가입 요청 본문
 class UserCreate(BaseModel):
@@ -100,6 +99,7 @@ class PostResponse(BaseModel):
     author_id: int
     title: str
     content: str
+    summary: str | None = None
 
 posts_db: dict[int, dict] = {}
 next_post_id: int = 0
@@ -117,11 +117,14 @@ def create_post(post: PostCreate):
     if post.author_id not in users_db:
         raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
     
+    summary = summarize_text(post.content) # AI 요약
+
     new_post = {
         "id": next_post_id,
         "author_id": post.author_id,
         "title": post.title,
         "content": post.content,
+        "summary": summary,
     }
     posts_db[next_post_id] = new_post
     next_post_id += 1
@@ -151,6 +154,10 @@ def update_post(post_id: int, post: PostUpdate):
     for key, value in updated_post.items():
         posts_db[post_id][key] = value
     
+    # content를 수정한 경우에 AI 요약 재생성
+    if post.content is not None:
+        posts_db[post_id]['summary'] = summarize_text(post.content)
+    
     return posts_db[post_id]
 
 # 게시글 삭제
@@ -173,6 +180,7 @@ class CommentResponse(BaseModel):
     post_id: int
     author_id: int
     content: str
+    summary: str | None = None
 
 
 comments_db: dict[int, dict] = {}
@@ -193,11 +201,14 @@ def create_comment(post_id: int, comment: CommentCreate):
     if comment.author_id not in users_db:
         raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
     
+    summary = summarize_text(comment.content)
+
     new_comment = {
         "id": next_comment_id,
         "post_id": post_id,
         "author_id": comment.author_id,
         "content": comment.content,
+        "summary": summary,
     }
     comments_db[next_comment_id] = new_comment
     next_comment_id += 1
@@ -241,3 +252,25 @@ def delete_comment(post_id: int, comment_id: int):
     del comments_db[comment_id]
 
     return
+
+
+
+# AI 요약
+import httpx
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+OLLAMA_MODEL = "gemma4:e2b"
+
+def summarize_text(text: str) -> str:
+    """입력 text를 ollama를 통해 한 문장으로 요악"""
+    prompt = f"다음 글을 한국어로 짧게 한 문장으로 요약하고, 요약한 내용만 출력해줘:\n\n{text}"
+    response = httpx.post(
+        url = OLLAMA_URL,
+        json={
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False
+        },
+        timeout=60.,
+    )
+    return response.json()["response"].strip()
