@@ -44,9 +44,15 @@ def create_user(user: UserCreate):
     if any(user_info['email'] == user.email for user_info in users_db.values()):
         raise HTTPException(status_code=400, detail="해당 이메일로 가입된 아이디가 존재합니다.")
 
-    new_user = {"id": next_user_id, "email": user.email, "password": user.password, "nickname": user.nickname}
+    new_user = {
+        "id": next_user_id,
+        "email": user.email,
+        "password": user.password,
+        "nickname": user.nickname,
+    }
     users_db[next_user_id] = new_user
     next_user_id += 1
+
     return new_user
     
 # 사용자 조회
@@ -111,7 +117,12 @@ def create_post(post: PostCreate):
     if post.author_id not in users_db:
         raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
     
-    new_post = {"id": next_post_id, "author_id": post.author_id, "title": post.title, "content": post.content}
+    new_post = {
+        "id": next_post_id,
+        "author_id": post.author_id,
+        "title": post.title,
+        "content": post.content,
+    }
     posts_db[next_post_id] = new_post
     next_post_id += 1
     
@@ -149,5 +160,84 @@ def delete_post(post_id: int):
         raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
     
     del posts_db[post_id]
+
+    return
+
+"""댓글"""
+class CommentCreate(BaseModel):
+    author_id: int
+    content: str
+
+class CommentResponse(BaseModel):
+    id: int
+    post_id: int
+    author_id: int
+    content: str
+
+
+comments_db: dict[int, dict] = {}
+next_comment_id: int = 0
+
+# 댓글 생성
+@app.post("/posts/{post_id}/comments", response_model=CommentResponse, status_code=201)
+def create_comment(post_id: int, comment: CommentCreate):
+    """post_id, author_id, content를 받아 comments_db에 생성
+    
+    post 존재 여부, author 존재 여부 확인
+    응답은 CommentResponse 모양
+    """
+    global next_comment_id
+
+    if post_id not in posts_db:
+        raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
+    if comment.author_id not in users_db:
+        raise HTTPException(status_code=404, detail="존재하지 않는 사용자입니다.")
+    
+    new_comment = {
+        "id": next_comment_id,
+        "post_id": post_id,
+        "author_id": comment.author_id,
+        "content": comment.content,
+    }
+    comments_db[next_comment_id] = new_comment
+    next_comment_id += 1
+
+    return new_comment
+
+# 댓글 전체 조회
+@app.get("/posts/{post_id}/comments", response_model=list[CommentResponse], status_code=200)
+def get_all_comments(post_id: int):
+    if post_id not in posts_db:
+        raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
+    
+    comments = [comment_dict for comment_dict in comments_db.values() if comment_dict['post_id'] == post_id]
+
+    return comments
+
+# 댓글 조회
+@app.get("/posts/{post_id}/comments/{comment_id}", response_model=CommentResponse, status_code=200)
+def get_comment(post_id: int, comment_id: int):
+    if post_id not in posts_db: # 게시글 존재 여부 확인
+        raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
+    if comment_id not in comments_db: # 댓글 존재 여부 확인
+        raise HTTPException(status_code=404, detail="존재하지 않는 댓글입니다.")
+    # comment_id가 post_id에 존재 여부 확인
+    if post_id != comments_db[comment_id]["post_id"]:
+        raise HTTPException(status_code=404, detail="해당 게시글의 댓글이 아닙니다.")
+
+    return comments_db[comment_id]
+
+# 댓글 삭제
+@app.delete("/posts/{post_id}/comments/{comment_id}", status_code=204)
+def delete_comment(post_id: int, comment_id: int):
+    if post_id not in posts_db:
+        raise HTTPException(status_code=404, detail="존재하지 않는 게시글입니다.")
+    if comment_id not in comments_db:
+        raise HTTPException(status_code=404, detail="존재하지 않는 댓글입니다.")
+    # comment_id가 post_id에 존재 여부 확인
+    if post_id != comments_db[comment_id]["post_id"]:
+        raise HTTPException(status_code=404, detail="해당 게시글의 댓글이 아닙니다.")
+    
+    del comments_db[comment_id]
 
     return
