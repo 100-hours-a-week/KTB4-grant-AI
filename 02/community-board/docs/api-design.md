@@ -24,7 +24,6 @@
 | 조회 | `GET` | `/posts/{post_id}` | - | `200` |
 | 수정 | `PATCH` | `/posts/{post_id}` | 제목, 내용 | `200` |
 | 삭제 | `DELETE` | `/posts/{post_id}` | - | `204` |
-<!-- | AI 요약 | `POST` | `/posts/{post_id}/summary` |  -->
 ### 댓글
 | 기능 | 메서드 | 경로 | 요청 본문 | 응답 |
 |---|---|---|---|---|
