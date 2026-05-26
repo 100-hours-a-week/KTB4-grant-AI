@@ -41,6 +41,7 @@ dependencies = [
     "setuptools==82.0.1",
     "shellingham==1.5.4",
     "starlette==1.0.0",
+    "streamlit>=1.57.0",
     "typer==0.25.1",
     "typing-extensions==4.15.0",
     "typing-inspection==0.4.2",
