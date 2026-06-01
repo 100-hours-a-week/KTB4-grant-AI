@@ -1,3 +1,7 @@
+"""client의 요청이 router에 도달하기 전과 응답이 client로 나가기 전의 전체 흐름에 대한 코드로, 특정 기능 하나가 아니라 앱 전체 요청 흐름에 공통으로 개입
+
+예시) 요청 처리 시간 측정"""
+
 import time
 from fastapi import FastAPI, Request
 

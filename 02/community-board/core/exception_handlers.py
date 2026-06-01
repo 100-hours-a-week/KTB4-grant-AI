@@ -1,3 +1,6 @@
+"""앱 전반에서 발생하는 예외를 가로채어 정해진 형식의 응답으로 변환하는 전역 처리기로, 에러 처리를 router나 controller에서 개별적으로 처리하지 않고 전역에서 통일.
+"""
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
