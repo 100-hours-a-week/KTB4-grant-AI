@@ -1,0 +1,21 @@
+[project]
+name = "04"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "kksoo1769", email = "kksoo1769@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.10.9",
+    "opencv-python>=4.13.0.92",
+    "scikit-learn>=1.8.0",
+]
+
+[project.scripts]
+04 = "04:main"
+
+[build-system]
+requires = ["uv_build>=0.11.15,<0.12.0"]
+build-backend = "uv_build"
