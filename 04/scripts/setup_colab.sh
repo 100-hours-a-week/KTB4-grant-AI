@@ -6,3 +6,5 @@ export PATH="/root/.local/bin:$PATH" # 경로 추가
 
 uv sync --inexact
 uv pip install torch torchvision --torch-backend=auto
+
+uv run python -c 'import torch; print("torch:", torch.__version__); print("cuda:", torch.cuda.is_available()); print("device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "no cuda")'
