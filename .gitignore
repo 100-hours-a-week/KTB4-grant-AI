@@ -1,3 +1,6 @@
 __pycache__/
 .DS_Store
 .venv
+
+# 다른 repo에서 관리
+Chatbot 
